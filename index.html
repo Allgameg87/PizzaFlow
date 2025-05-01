@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Анализ IS PizzaFlow | Чиркин Елизар</title>
+    <style>
+        :root {
+            --primary: #2563eb;
+            --primary-light: #3b82f6;
+            --secondary: #7c3aed;
+            --accent: #ec4899;
+            --dark: #0f172a;
+            --darker: #020617;
+            --light: #f8fafc;
+            --neon: #22d3ee;
+            --glass: rgba(255, 255, 255, 0.08);
+            --glass-border: rgba(255, 255, 255, 0.12);
+        }
+        
+        @font-face {
+            font-family: 'Geist';
+            src: url('https://fonts.cdnfonts.com/css/geist') format('woff2');
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Geist', system-ui, -apple-system, sans-serif;
+        }
+        
+        body {
+            background: radial-gradient(circle at 10% 20%, var(--darker), var(--dark));
+            color: var(--light);
+            min-height: 100vh;
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+            position: relative;
+        }
+        
+        .particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            opacity: 0.3;
+        }
+        
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 4rem;
+            padding: 2rem;
+            background: var(--glass);
+            backdrop-filter: blur(16px);
+            border-radius: 24px;
+            border: 1px solid var(--glass-border);
+            box-shadow: 0 12px 48px rgba(0, 0, 0, 0.25);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(59, 130, 246, 0.1), transparent 70%);
+            animation: rotate 20s linear infinite;
+            z-index: -1;
+        }
+        
+        h1 {
+            font-size: 3rem;
+            background: linear-gradient(90deg, var(--neon), var(--primary-light));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            font-weight: 800;
+            letter-spacing: -0.05em;
+            line-height: 1.2;
+        }
+        
+        .subtitle {
+            font-size: 1.2rem;
+            color: rgba(248, 250, 252, 0.7);
+            margin-top: 0.5rem;
+            font-weight: 400;
+        }
+        
+        .card-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+        
+        .card {
+            background: var(--glass);
+            backdrop-filter: blur(16px);
+            border-radius: 24px;
+            padding: 2.5rem;
+            border: 1px solid var(--glass-border);
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 16px 56px rgba(0, 0, 0, 0.3);
+            border-color: rgba(59, 130, 246, 0.3);
+        }
+        
+        .card::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(120deg, 
+                rgba(59, 130, 246, 0.05), 
+                rgba(236, 72, 153, 0.05));
+            opacity: 0;
+            transition: opacity 0.4s ease;
+            z-index: -1;
+        }
+        
+        .card:hover::after {
+            opacity: 1;
+        }
+        
+        h2 {
+            font-size: 2rem;
+            margin-bottom: 1.5rem;
+            background: linear-gradient(90deg, var(--neon), var(--accent));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+        }
+        
+        h3 {
+            font-size: 1.5rem;
+            margin: 2rem 0 1.5rem;
+            color: var(--light);
+            font-weight: 600;
+            position: relative;
+            display: inline-block;
+        }
+        
+        h3::after {
+            content: '';
+            position: absolute;
+            bottom: -8px;
+            left: 0;
+            width: 50px;
+            height: 3px;
+            background: linear-gradient(90deg, var(--primary), transparent);
+            border-radius: 3px;
+        }
+        
+        p {
+            margin-bottom: 1.5rem;
+            color: rgba(248, 250, 252, 0.8);
+            font-size: 1.1rem;
+            line-height: 1.7;
+        }
+        
+        ul {
+            margin-bottom: 2rem;
+        }
+        
+        li {
+            margin-bottom: 0.8rem;
+            position: relative;
+            padding-left: 1.8rem;
+            color: rgba(248, 250, 252, 0.9);
+        }
+        
+        li::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0.6em;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: var(--neon);
+            transform: translateY(-50%);
+            box-shadow: 0 0 8px var(--neon);
+        }
+        
+        .feature-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+        
+        .feature-item {
+            background: rgba(15, 23, 42, 0.5);
+            padding: 1.5rem;
+            border-radius: 16px;
+            border: 1px solid rgba(59, 130, 246, 0.1);
+            transition: all 0.3s ease;
+        }
+        
+        .feature-item:hover {
+            background: rgba(30, 41, 59, 0.5);
+            border-color: rgba(59, 130, 246, 0.3);
+            transform: translateY(-3px);
+        }
+        
+        .feature-title {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--light);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .feature-icon {
+            color: var(--neon);
+        }
+        
+        .system-badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.5rem 1.2rem;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            border-radius: 999px;
+            font-weight: 600;
+            margin-right: 0.8rem;
+            margin-bottom: 0.8rem;
+            font-size: 0.9rem;
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+            transition: transform 0.2s ease;
+        }
+        
+        .system-badge:hover {
+            transform: scale(1.05);
+        }
+        
+        .badge-group {
+            display: flex;
+            flex-wrap: wrap;
+            margin: 2rem 0;
+        }
+        
+        .footer {
+            text-align: center;
+            margin-top: 4rem;
+            padding: 2rem;
+            font-size: 0.9rem;
+            color: rgba(248, 250, 252, 0.6);
+        }
+        
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+        
+        @media (max-width: 1024px) {
+            .container {
+                padding: 1.5rem;
+            }
+            
+            h1 {
+                font-size: 2.5rem;
+            }
+            
+            .card-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            header {
+                flex-direction: column;
+                text-align: center;
+                gap: 1rem;
+                padding: 1.5rem;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .card {
+                padding: 1.8rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="particles" id="particles-js"></div>
+    
+    <div class="container">
+        <header>
+            <div>
+                <h1>PizzaFlow IS Analysis</h1>
+                <p class="subtitle">Информационная система управления заказами пиццерии</p>
+            </div>
+        </header>
+        
+        <main>
+            <div class="card-grid">
+                <section class="card">
+                    <h2>Системный обзор</h2>
+                    <p>PizzaFlow — современная информационная система, разработанная для автоматизации всех бизнес-процессов сети пиццерий. Система объединяет заказы из всех каналов продаж в единый рабочий поток.</p>
+                    
+                    <h3>Ключевые функции</h3>
+                    <div class="feature-list">
+                        <div class="feature-item">
+                            <div class="feature-title">
+                                <span class="feature-icon">✦</span> Мультиканальность
+                            </div>
+                            <p>Приём заказов через сайт, мобильное приложение, телефонные звонки и терминалы в заведении</p>
+                        </div>
+                        <div class="feature-item">
+                            <div class="feature-title">
+                                <span class="feature-icon">✦</span> Управление производством
+                            </div>
+                            <p>Автоматическое распределение заказов между кухнями с учётом загрузки</p>
+                        </div>
+                        <div class="feature-item">
+                            <div class="feature-title">
+                                <span class="feature-icon">✦</span> Логистика
+                            </div>
+                            <p>Оптимальное распределение доставок между курьерами с маршрутизацией в реальном времени</p>
+                        </div>
+                        <div class="feature-item">
+                            <div class="feature-title">
+                                <span class="feature-icon">✦</span> Аналитика
+                            </div>
+                            <p>Мониторинг KPI в реальном времени и прогнозная аналитика</p>
+                        </div>
+                    </div>
+                </section>
+                
+                <section class="card">
+                    <h2>Архитектура данных</h2>
+                    <p>Система обрабатывает структурированные данные из различных источников, обеспечивая целостность и безопасность информации.</p>
+                    
+                    <h3>Основные категории данных</h3>
+                    <ul>
+                        <li><strong>Профили клиентов:</strong> история заказов, предпочтения, рейтинг</li>
+                        <li><strong>Операционные данные:</strong> статусы заказов, время выполнения, загрузка кухни</li>
+                        <li><strong>Логистические данные:</strong> маршруты доставки, геолокация курьеров</li>
+                        <li><strong>Финансовые данные:</strong> транзакции, кассовая отчетность</li>
+                        <li><strong>Аналитические данные:</strong> тренды продаж, эффективность рекламы</li>
+                    </ul>
+                    
+                    <div class="badge-group">
+                        <span class="system-badge">SQL Database</span>
+                        <span class="system-badge">Real-time Sync</span>
+                        <span class="system-badge">Data Encryption</span>
+                    </div>
+                </section>
+            </div>
+            
+            <section class="card">
+                <h2>Классификация системы</h2>
+                <p>PizzaFlow относится к <strong>транзакционным системам (TPS)</strong> с элементами <strong>систем поддержки принятия решений (DSS)</strong> благодаря встроенным аналитическим модулям.</p>
+                
+                <h3>Ключевые характеристики</h3>
+                <ul>
+                    <li>Обработка 500+ транзакций в минуту в пиковые часы</li>
+                    <li>Время отклика менее 200 мс для критических операций</li>
+                    <li>Автоматическое масштабирование под нагрузку</li>
+                    <li>Интеграция с 15+ внешними сервисами</li>
+                </ul>
+                
+                <div class="badge-group">
+                    <span class="system-badge">Transaction Processing</span>
+                    <span class="system-badge">High Availability</span>
+                    <span class="system-badge">Microservices</span>
+                </div>
+            </section>
+            
+            <div class="card-grid" style="margin-top: 2rem;">
+                <section class="card">
+                    <h2>Эволюция системы</h2>
+                    <p>Базовая TPS-система может быть преобразована в интеллектуальную платформу управления бизнесом с помощью следующих улучшений:</p>
+                    
+                    <h3>Расширенные возможности</h3>
+                    <ul>
+                        <li>AI-прогнозирование спроса с учётом погоды, событий и истории</li>
+                        <li>Персонализированные рекомендации для клиентов</li>
+                        <li>Оптимизация закупок с помощью ML</li>
+                        <li>Автоматическое ценообразование</li>
+                    </ul>
+                </section>
+                
+                <section class="card">
+                    <h2>Технологический стек</h2>
+                    <p>Для реализации расширенной версии потребуется:</p>
+                    
+                    <ul>
+                        <li>Data Lake для хранения разнородных данных</li>
+                        <li>ML-модели для прогнозирования</li>
+                        <li>Система обработки потоковых данных</li>
+                        <li>API-шлюз для интеграций</li>
+                    </ul>
+                    
+                    <div class="badge-group" style="margin-top: 2rem;">
+                        <span class="system-badge">Machine Learning</span>
+                        <span class="system-badge">Data Science</span>
+                        <span class="system-badge">Decision Support</span>
+                    </div>
+                </section>
+            </div>
+        </main>
+        
+        <div class="footer">
+            <p>Разработано Чиркиным Елизаром</p>
+        </div>
+    </div>
+    
+    <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
+    <script>
+        // Инициализация частиц
+        particlesJS('particles-js', {
+            particles: {
+                number: { value: 60, density: { enable: true, value_area: 800 } },
+                color: { value: "#3b82f6" },
+                shape: { type: "circle" },
+                opacity: { value: 0.5, random: true },
+                size: { value: 3, random: true },
+                line_linked: { enable: true, distance: 150, color: "#3b82f6", opacity: 0.2, width: 1 },
+                move: { enable: true, speed: 2, direction: "none", random: true, straight: false, out_mode: "out" }
+            },
+            interactivity: {
+                detect_on: "canvas",
+                events: {
+                    onhover: { enable: true, mode: "grab" },
+                    onclick: { enable: true, mode: "push" }
+                }
+            }
+        });
+        
+        // Плавное появление элементов
+        const animateOnScroll = () => {
+            const cards = document.querySelectorAll('.card');
+            cards.forEach((card, i) => {
+                const cardTop = card.getBoundingClientRect().top;
+                const windowHeight = window.innerHeight;
+                
+                if (cardTop < windowHeight - 100) {
+                    card.style.opacity = '1';
+                    card.style.transform = 'translateY(0)';
+                }
+            });
+        };
+        
+        // Установка начальных стилей для анимации
+        document.querySelectorAll('.card').forEach(card => {
+            card.style.opacity = '0';
+            card.style.transform = 'translateY(30px)';
+            card.style.transition = 'opacity 0.6s ease-out, transform 0.6s ease-out';
+        });
+        
+        // Запуск анимации при загрузке и скролле
+        window.addEventListener('load', animateOnScroll);
+        window.addEventListener('scroll', animateOnScroll);
+    </script>
+</body>
+</html>
